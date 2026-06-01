@@ -1,0 +1,236 @@
+/* ── Audio Player ─────────────────────────────────────────── */
+.ap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: linear-gradient(160deg, #1a1d2e 0%, #12141f 100%);
+  border: 1px solid #2e3347;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle glow behind the card */
+.ap::before {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Equalizer canvas ─────────────────────────────────────── */
+.ap-eq-wrap {
+  position: relative;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.25);
+}
+
+.ap-eq {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* idle state — gentle pulse when paused */
+.ap-eq-idle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 6px 6px;
+}
+
+.ap-eq-idle-bar {
+  flex: 1;
+  max-width: 6px;
+  background: #6366f1;
+  border-radius: 2px 2px 0 0;
+  opacity: 0.35;
+  animation: idle-pulse 1.4s ease-in-out infinite alternate;
+  height: 6px;
+}
+
+@keyframes idle-pulse {
+  from { height: 4px;  opacity: 0.25; }
+  to   { height: 20px; opacity: 0.5;  }
+}
+
+/* ── Meta: thumbnail + title ──────────────────────────────── */
+.ap-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ap-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.ap-text { min-width: 0; }
+
+.ap-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.ap-author {
+  margin-top: 3px;
+  font-size: 13px;
+  color: #8892a4;
+}
+
+/* ── Seek bar ─────────────────────────────────────────────── */
+.ap-seek {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ap-time {
+  font-size: 12px;
+  color: #8892a4;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  width: 36px;
+}
+
+.ap-time:last-child { text-align: right; }
+
+/* ── Shared range track ───────────────────────────────────── */
+.ap-range-wrap,
+.ap-vol-range-wrap {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.ap-range-track {
+  position: absolute;
+  left: 0; right: 0;
+  height: 4px;
+  background: #2e3347;
+  border-radius: 99px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ap-range-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a5b4fc);
+  border-radius: 99px;
+  transition: width 0.05s linear;
+}
+
+.ap-range-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+/* Thumb visible on hover via pseudo — can't do in CSS without webkit hacks;
+   show a dot on the fill instead */
+.ap-range-wrap:hover .ap-range-fill::after,
+.ap-vol-range-wrap:hover .ap-range-fill::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+/* ── Controls ─────────────────────────────────────────────── */
+.ap-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.ap-btn {
+  background: none;
+  border: none;
+  color: #8892a4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, transform 0.12s;
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.ap-btn:hover { color: #e2e8f0; }
+.ap-btn:active { transform: scale(0.92); }
+
+.ap-btn-sm svg { width: 22px; height: 22px; }
+
+.ap-btn-play {
+  width: 52px;
+  height: 52px;
+  background: #6366f1;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 24px rgba(99,102,241,0.55);
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+
+.ap-btn-play:hover {
+  background: #818cf8;
+  box-shadow: 0 0 32px rgba(99,102,241,0.7);
+  color: #fff;
+}
+
+.ap-btn-play svg { width: 22px; height: 22px; margin-left: 2px; }
+.ap-btn-play:has(rect) svg { margin-left: 0; } /* pause icon centered */
+
+/* ── Volume ───────────────────────────────────────────────── */
+.ap-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ap-vol-icon {
+  background: none;
+  border: none;
+  color: #8892a4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px;
+  transition: color 0.15s;
+}
+
+.ap-vol-icon:hover { color: #e2e8f0; }
+.ap-vol-icon svg { width: 18px; height: 18px; }
+
+.ap-vol-range-wrap { max-width: 120px; }
