@@ -11,16 +11,14 @@
   overflow: hidden;
 }
 
-/* subtle glow behind the card */
 .ap::before {
   content: "";
   position: absolute;
   inset: -60px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.14) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--accent-rgb), 0.14) 0%, transparent 70%);
   pointer-events: none;
 }
 
-/* ── Equalizer canvas ─────────────────────────────────────── */
 .ap-eq-wrap {
   position: relative;
   height: 80px;
@@ -35,7 +33,6 @@
   display: block;
 }
 
-/* idle state — gentle pulse when paused */
 .ap-eq-idle {
   position: absolute;
   inset: 0;
@@ -49,7 +46,7 @@
 .ap-eq-idle-bar {
   flex: 1;
   max-width: 6px;
-  background: #6366f1;
+  background: var(--accent);
   border-radius: 2px 2px 0 0;
   opacity: 0.35;
   animation: idle-pulse 1.4s ease-in-out infinite alternate;
@@ -61,7 +58,6 @@
   to   { height: 20px; opacity: 0.5;  }
 }
 
-/* ── Meta: thumbnail + title ──────────────────────────────── */
 .ap-meta {
   display: flex;
   align-items: center;
@@ -95,7 +91,6 @@
   color: #8892a4;
 }
 
-/* ── Seek bar ─────────────────────────────────────────────── */
 .ap-seek {
   display: flex;
   align-items: center;
@@ -112,7 +107,6 @@
 
 .ap-time:last-child { text-align: right; }
 
-/* ── Shared range track ───────────────────────────────────── */
 .ap-range-wrap,
 .ap-vol-range-wrap {
   position: relative;
@@ -134,7 +128,7 @@
 
 .ap-range-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #a5b4fc);
+  background: linear-gradient(90deg, var(--eq-c0), var(--eq-c2));
   border-radius: 99px;
   transition: width 0.05s linear;
 }
@@ -150,8 +144,6 @@
   padding: 0;
 }
 
-/* Thumb visible on hover via pseudo — can't do in CSS without webkit hacks;
-   show a dot on the fill instead */
 .ap-range-wrap:hover .ap-range-fill::after,
 .ap-vol-range-wrap:hover .ap-range-fill::after {
   content: "";
@@ -163,10 +155,9 @@
   height: 13px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px #6366f1;
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
-/* ── Controls ─────────────────────────────────────────────── */
 .ap-controls {
   display: flex;
   align-items: center;
@@ -195,23 +186,22 @@
 .ap-btn-play {
   width: 52px;
   height: 52px;
-  background: #6366f1;
+  background: var(--accent);
   color: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 24px rgba(99,102,241,0.55);
+  box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.55);
   transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
 }
 
 .ap-btn-play:hover {
-  background: #818cf8;
-  box-shadow: 0 0 32px rgba(99,102,241,0.7);
+  background: var(--accent-h);
+  box-shadow: 0 0 32px rgba(var(--accent-rgb), 0.7);
   color: #fff;
 }
 
 .ap-btn-play svg { width: 22px; height: 22px; margin-left: 2px; }
-.ap-btn-play:has(rect) svg { margin-left: 0; } /* pause icon centered */
+.ap-btn-play:has(rect) svg { margin-left: 0; }
 
-/* ── Volume ───────────────────────────────────────────────── */
 .ap-volume {
   display: flex;
   align-items: center;

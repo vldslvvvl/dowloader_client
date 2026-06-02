@@ -15,6 +15,57 @@ import {
 import AudioPlayer from "./AudioPlayer";
 import "./App.css";
 
+type Theme = "purple" | "red" | "green" | "blue" | "orange";
+
+const THEMES: { id: Theme; color: string; label: string }[] = [
+  { id: "purple", color: "#6366f1", label: "Фиолетовый" },
+  { id: "red",    color: "#ef4444", label: "Красный"    },
+  { id: "green",  color: "#22c55e", label: "Зелёный"    },
+  { id: "blue",   color: "#3b82f6", label: "Синий"      },
+  { id: "orange", color: "#f97316", label: "Оранжевый"  },
+];
+
+function applyTheme(theme: Theme) {
+  if (theme === "purple") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+}
+
+function ColorPicker() {
+  const [active, setActive] = useState<Theme>(() => {
+    const saved = localStorage.getItem("app-theme") as Theme | null;
+    return saved ?? "purple";
+  });
+
+  useEffect(() => {
+    applyTheme(active);
+  }, []);
+
+  function handleSelect(theme: Theme) {
+    setActive(theme);
+    applyTheme(theme);
+    localStorage.setItem("app-theme", theme);
+  }
+
+  return (
+    <div className="color-picker" aria-label="Выбор цветовой темы">
+      {THEMES.map((t) => (
+        <button
+          key={t.id}
+          className={`color-swatch${active === t.id ? " active" : ""}`}
+          style={{ background: t.color }}
+          onClick={() => handleSelect(t.id)}
+          title={t.label}
+          aria-label={t.label}
+          aria-pressed={active === t.id}
+        />
+      ))}
+    </div>
+  );
+}
+
 const QUALITIES: { value: Quality; label: string }[] = [
   { value: "best",   label: "Лучшее" },
   { value: "2160p",  label: "4K (2160p)" },
@@ -178,12 +229,12 @@ export default function App() {
 
   return (
     <div className="page">
+      <ColorPicker />
       <header className="header">
         <div className="logo">
-          <span className="logo-icon">⬇</span>
-          <span className="logo-text">MediaGet</span>
+          <span className="logo-text">Downloader</span>
         </div>
-        <p className="tagline">Скачивай аудио и видео с YouTube</p>
+        <p className="tagline">Скачать видево оффлайн платно с регистрацией и смс (пока тока ютуб)</p>
       </header>
 
       <main className="card">
@@ -394,7 +445,7 @@ export default function App() {
 
               <div className="result-actions">
                 <button className="save-btn" onClick={handleSave} disabled={saving}>
-                  {saving ? <><span className="spinner" /> Сохранение...</> : "💾 Сохранить на компьютер"}
+                  {saving ? <><span className="spinner" /> Сохранение...</> : "Сохранить"}
                 </button>
                 <button className="new-btn" onClick={handleReset}>
                   + Новое скачивание

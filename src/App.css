@@ -1,6 +1,7 @@
 /* ── Reset & base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Base theme (purple / indigo) ─────────────────────────── */
 :root {
   --bg:          #0f1117;
   --surface:     #1a1d27;
@@ -8,6 +9,11 @@
   --border:      #2e3347;
   --accent:      #6366f1;
   --accent-h:    #818cf8;
+  --accent-rgb:  99, 102, 241;
+  --eq-c0:       #6366f1;
+  --eq-c1:       #818cf8;
+  --eq-c2:       #a5b4fc;
+  --eq-c3:       #c4b5fd;
   --success:     #22c55e;
   --error:       #ef4444;
   --text:        #e2e8f0;
@@ -15,6 +21,50 @@
   --radius:      14px;
   --radius-sm:   8px;
   --transition:  0.18s ease;
+}
+
+/* ── Red theme ────────────────────────────────────────────── */
+:root[data-theme="red"] {
+  --accent:     #ef4444;
+  --accent-h:   #f87171;
+  --accent-rgb: 239, 68, 68;
+  --eq-c0:      #ef4444;
+  --eq-c1:      #f87171;
+  --eq-c2:      #fca5a5;
+  --eq-c3:      #fecaca;
+}
+
+/* ── Green theme ──────────────────────────────────────────── */
+:root[data-theme="green"] {
+  --accent:     #22c55e;
+  --accent-h:   #4ade80;
+  --accent-rgb: 34, 197, 94;
+  --eq-c0:      #22c55e;
+  --eq-c1:      #4ade80;
+  --eq-c2:      #86efac;
+  --eq-c3:      #bbf7d0;
+}
+
+/* ── Blue theme ───────────────────────────────────────────── */
+:root[data-theme="blue"] {
+  --accent:     #3b82f6;
+  --accent-h:   #60a5fa;
+  --accent-rgb: 59, 130, 246;
+  --eq-c0:      #3b82f6;
+  --eq-c1:      #60a5fa;
+  --eq-c2:      #93c5fd;
+  --eq-c3:      #bfdbfe;
+}
+
+/* ── Orange theme ─────────────────────────────────────────── */
+:root[data-theme="orange"] {
+  --accent:     #f97316;
+  --accent-h:   #fb923c;
+  --accent-rgb: 249, 115, 22;
+  --eq-c0:      #f97316;
+  --eq-c1:      #fb923c;
+  --eq-c2:      #fdba74;
+  --eq-c3:      #fed7aa;
 }
 
 body {
@@ -58,14 +108,14 @@ body {
   height: 48px;
   background: var(--accent);
   border-radius: 12px;
-  box-shadow: 0 0 28px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.4);
 }
 
 .logo-text {
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #818cf8, #6366f1);
+  background: linear-gradient(135deg, var(--accent-h), var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -123,7 +173,7 @@ body {
 
 .input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
 }
 
 .input:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -236,7 +286,7 @@ body {
 
 .toggle-btn.active {
   border-color: var(--accent);
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   color: var(--accent-h);
   font-weight: 600;
 }
@@ -306,13 +356,13 @@ body {
   justify-content: center;
   gap: 8px;
   transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
 }
 
 .download-btn:hover:not(:disabled) {
   background: var(--accent-h);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4);
 }
 
 .download-btn:active:not(:disabled) { transform: translateY(0); }
@@ -515,7 +565,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
 }
 
 .save-btn:hover {
@@ -545,3 +595,41 @@ body {
 @keyframes spin    { to { transform: rotate(360deg); } }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @keyframes fadeIn  { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── Color picker ─────────────────────────────────────────── */
+.color-picker {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 10px;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  outline: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.active {
+  border-color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
+}
