@@ -97,6 +97,23 @@ export async function setCover(
   return res.json();
 }
 
+export async function trimMedia(
+  filename: string,
+  start: string,
+  end: string
+): Promise<{ filename: string; download_url: string }> {
+  const res = await fetch("/edit/trim", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename, start, end }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Ошибка сервера" }));
+    throw new Error(err.detail ?? "Ошибка обрезки");
+  }
+  return res.json();
+}
+
 export function formatViews(n: number | null): string {
   if (!n) return "";
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M просмотров`;
