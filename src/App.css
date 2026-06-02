@@ -591,6 +591,56 @@ body {
   border-color: var(--accent);
 }
 
+/* ── Edit bar (trim / revert buttons) ────────────────────── */
+.edit-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trim-open-btn {
+  padding: 8px 14px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent-h);
+  border: 1.5px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.trim-open-btn:hover {
+  background: rgba(var(--accent-rgb), 0.22);
+  border-color: var(--accent);
+}
+
+.revert-btn {
+  padding: 8px 14px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.revert-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* ── Edit panel wrapper ───────────────────────────────────── */
+.edit-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
 /* ── Animations ───────────────────────────────────────────── */
 @keyframes spin    { to { transform: rotate(360deg); } }
 @keyframes shimmer { to { background-position: -200% 0; } }

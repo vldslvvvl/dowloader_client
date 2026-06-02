@@ -57,9 +57,9 @@ export default function AudioPlayer({ src, title, author, thumbnail }: Props) {
     const H = canvas.height;
     ctx2d.clearRect(0, 0, W, H);
 
-    let freqData: Uint8Array | null = null;
+    let freqData: Uint8Array<ArrayBuffer> | null = null;
     if (analyserRef.current) {
-      freqData = new Uint8Array(analyserRef.current.frequencyBinCount);
+      freqData = new Uint8Array(new ArrayBuffer(analyserRef.current.frequencyBinCount));
       analyserRef.current.getByteFrequencyData(freqData);
     }
 

@@ -13,6 +13,7 @@ import {
   type DownloadResult,
 } from "./api";
 import AudioPlayer from "./AudioPlayer";
+import TrimEditor from "./TrimEditor";
 import "./App.css";
 
 type Theme = "purple" | "red" | "green" | "blue" | "orange";
@@ -95,6 +96,11 @@ export default function App() {
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverError, setCoverError]       = useState<string | null>(null);
   const [saving, setSaving]               = useState(false);
+  const [editMode, setEditMode]           = useState(false);
+  const [fileDuration, setFileDuration]   = useState(0);
+  // Snapshot before trim — for "Вернуть оригинал"
+  const [originalResult, setOriginalResult]       = useState<DownloadResult | null>(null);
+  const [originalPlayerSrc, setOriginalPlayerSrc] = useState<string>("");
 
   const inputRef    = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -146,6 +152,10 @@ export default function App() {
       setPlayerSrc(data.download_url);
       setCustomTitle(data.title || info?.title || "");
       setCustomAuthor(info?.uploader || "");
+      setFileDuration(info?.duration ?? 0);
+      setOriginalResult(null);
+      setOriginalPlayerSrc("");
+      setEditMode(false);
       setStatus("done");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Неизвестная ошибка");
@@ -201,6 +211,41 @@ export default function App() {
     }
   }
 
+  // ── Trim editing ─────────────────────────────────────────────────────────
+  function handleEnterEditMode() {
+    if (!result) return;
+    if (!originalResult) {
+      setOriginalResult(result);
+      setOriginalPlayerSrc(playerSrc);
+    }
+    setEditMode(true);
+  }
+
+  function handleTrimDone(
+    trimmed: { filename: string; download_url: string },
+    newDuration: number
+  ) {
+    setResult((prev) =>
+      prev ? { ...prev, filename: trimmed.filename, download_url: trimmed.download_url } : prev
+    );
+    setPlayerSrc(trimmed.download_url);
+    setFileDuration(newDuration);
+    setEditMode(false);
+  }
+
+  function handleCancelEdit() {
+    setEditMode(false);
+  }
+
+  function handleRevertToOriginal() {
+    if (!originalResult) return;
+    setResult(originalResult);
+    setPlayerSrc(originalPlayerSrc);
+    setFileDuration(info?.duration ?? 0);
+    setOriginalResult(null);
+    setOriginalPlayerSrc("");
+  }
+
   function handleReset() {
     setUrl("");
     setInfo(null);
@@ -213,6 +258,10 @@ export default function App() {
     setCoverError(null);
     setSaving(false);
     setPlayerSrc("");
+    setEditMode(false);
+    setOriginalResult(null);
+    setOriginalPlayerSrc("");
+    setFileDuration(0);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setTimeout(() => inputRef.current?.focus(), 50);
   }
@@ -349,7 +398,7 @@ export default function App() {
           </button>
         )}
 
-        {/* ── Результат: плеер + переименование ── */}
+        {/* ── Результат: плеер + редактирование / переименование ── */}
         {status === "done" && result && (
           <div className="result-section">
 
@@ -371,87 +420,111 @@ export default function App() {
               </div>
             )}
 
-            {/* Поля переименования */}
-            <div className="rename-section">
-              <p className="rename-title">Сохранить как</p>
-
-              <div className="rename-body">
-                {/* Обложка — только для аудио */}
-                {format === "audio" && (
-                  <div className="cover-block">
-                    <input
-                      ref={coverInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      style={{ display: "none" }}
-                      onChange={handleCoverSelect}
-                    />
-                    <button
-                      className={`cover-btn ${coverUploading ? "cover-loading" : ""}`}
-                      onClick={() => coverInputRef.current?.click()}
-                      disabled={coverUploading}
-                      title="Нажмите чтобы загрузить обложку"
-                    >
-                      {coverPreview || info?.thumbnail ? (
-                        <img
-                          className="cover-img"
-                          src={coverPreview ?? info?.thumbnail ?? ""}
-                          alt="обложка"
-                        />
-                      ) : (
-                        <span className="cover-placeholder">🎵</span>
-                      )}
-                      <span className="cover-overlay">
-                        {coverUploading ? <span className="spinner" /> : "✎ Изменить"}
-                      </span>
+            {editMode ? (
+              /* ── Режим обрезки ── */
+              <div className="edit-panel">
+                <TrimEditor
+                  filename={result.filename}
+                  duration={fileDuration}
+                  onTrimDone={handleTrimDone}
+                  onCancel={handleCancelEdit}
+                />
+              </div>
+            ) : (
+              /* ── Поля переименования ── */
+              <div className="rename-section">
+                {/* Строка с кнопкой обрезки и откатом */}
+                <div className="edit-bar">
+                  <button className="trim-open-btn" onClick={handleEnterEditMode}>
+                    ✂ Обрезать
+                  </button>
+                  {originalResult && (
+                    <button className="revert-btn" onClick={handleRevertToOriginal}>
+                      ↩ Вернуть оригинал
                     </button>
-                    {coverError && (
-                      <p className="cover-error">{coverError}</p>
-                    )}
-                    <p className="cover-hint">JPG / PNG / WebP</p>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                <div className="rename-fields">
-                  <div className="field">
-                    <label className="label">Название</label>
-                    <input
-                      className="input"
-                      value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
-                      placeholder="Название файла"
-                    />
-                  </div>
-                  <div className="field">
-                    <label className="label">Автор</label>
-                    <input
-                      className="input"
-                      value={customAuthor}
-                      onChange={(e) => setCustomAuthor(e.target.value)}
-                      placeholder="Имя исполнителя / канал"
-                    />
+                <p className="rename-title">Сохранить как</p>
+
+                <div className="rename-body">
+                  {/* Обложка — только для аудио */}
+                  {format === "audio" && (
+                    <div className="cover-block">
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        style={{ display: "none" }}
+                        onChange={handleCoverSelect}
+                      />
+                      <button
+                        className={`cover-btn ${coverUploading ? "cover-loading" : ""}`}
+                        onClick={() => coverInputRef.current?.click()}
+                        disabled={coverUploading}
+                        title="Нажмите чтобы загрузить обложку"
+                      >
+                        {coverPreview || info?.thumbnail ? (
+                          <img
+                            className="cover-img"
+                            src={coverPreview ?? info?.thumbnail ?? ""}
+                            alt="обложка"
+                          />
+                        ) : (
+                          <span className="cover-placeholder">🎵</span>
+                        )}
+                        <span className="cover-overlay">
+                          {coverUploading ? <span className="spinner" /> : "✎ Изменить"}
+                        </span>
+                      </button>
+                      {coverError && (
+                        <p className="cover-error">{coverError}</p>
+                      )}
+                      <p className="cover-hint">JPG / PNG / WebP</p>
+                    </div>
+                  )}
+
+                  <div className="rename-fields">
+                    <div className="field">
+                      <label className="label">Название</label>
+                      <input
+                        className="input"
+                        value={customTitle}
+                        onChange={(e) => setCustomTitle(e.target.value)}
+                        placeholder="Название файла"
+                      />
+                    </div>
+                    <div className="field">
+                      <label className="label">Автор</label>
+                      <input
+                        className="input"
+                        value={customAuthor}
+                        onChange={(e) => setCustomAuthor(e.target.value)}
+                        placeholder="Имя исполнителя / канал"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="filename-preview">
-                <span className="filename-preview-label">Имя файла:</span>
-                <span className="filename-preview-value">
-                  {customAuthor.trim()
-                    ? `${customAuthor.trim()} - ${customTitle.trim() || "…"}.${ext}`
-                    : `${customTitle.trim() || "…"}.${ext}`}
-                </span>
-              </div>
+                <div className="filename-preview">
+                  <span className="filename-preview-label">Имя файла:</span>
+                  <span className="filename-preview-value">
+                    {customAuthor.trim()
+                      ? `${customAuthor.trim()} - ${customTitle.trim() || "…"}.${ext}`
+                      : `${customTitle.trim() || "…"}.${ext}`}
+                  </span>
+                </div>
 
-              <div className="result-actions">
-                <button className="save-btn" onClick={handleSave} disabled={saving}>
-                  {saving ? <><span className="spinner" /> Сохранение...</> : "Сохранить"}
-                </button>
-                <button className="new-btn" onClick={handleReset}>
-                  + Новое скачивание
-                </button>
+                <div className="result-actions">
+                  <button className="save-btn" onClick={handleSave} disabled={saving}>
+                    {saving ? <><span className="spinner" /> Сохранение...</> : "Сохранить"}
+                  </button>
+                  <button className="new-btn" onClick={handleReset}>
+                    + Новое скачивание
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
