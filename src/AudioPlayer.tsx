@@ -9,7 +9,6 @@ interface Props {
 }
 
 const BAR_COUNT = 72;
-const EQ_COLORS  = ["#6366f1", "#818cf8", "#a5b4fc", "#c4b5fd"];
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -69,6 +68,13 @@ export default function AudioPlayer({ src, title, author, thumbnail }: Props) {
       ? Math.floor(analyserRef.current.frequencyBinCount * 0.65)
       : BAR_COUNT;
 
+    // read CSS theme variables once per frame
+    const cssVars = getComputedStyle(document.documentElement);
+    const c0 = cssVars.getPropertyValue("--eq-c0").trim();
+    const c1 = cssVars.getPropertyValue("--eq-c1").trim();
+    const c2 = cssVars.getPropertyValue("--eq-c2").trim();
+    const c3 = cssVars.getPropertyValue("--eq-c3").trim();
+
     for (let i = 0; i < BAR_COUNT; i++) {
       // map bar index to frequency bin
       const binIdx = Math.floor((i / BAR_COUNT) * maxFreqBin);
@@ -84,11 +90,10 @@ export default function AudioPlayer({ src, title, author, thumbnail }: Props) {
       const x    = i * (barW + 2);
       const y    = H - barH;
 
-      // gradient color by height
       const t = barsRef.current[i];
       const grad = ctx2d.createLinearGradient(x, y, x, H);
-      grad.addColorStop(0, t > 0.6 ? EQ_COLORS[3] : t > 0.3 ? EQ_COLORS[2] : EQ_COLORS[1]);
-      grad.addColorStop(1, EQ_COLORS[0]);
+      grad.addColorStop(0, t > 0.6 ? c3 : t > 0.3 ? c2 : c1);
+      grad.addColorStop(1, c0);
       ctx2d.fillStyle = grad;
 
       const radius = Math.min(barW / 2, 3);
