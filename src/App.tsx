@@ -283,7 +283,7 @@ export default function App() {
         <div className="logo">
           <span className="logo-text">Downloader</span>
         </div>
-        <p className="tagline">Скачать видево оффлайн платно с регистрацией и смс (пока тока ютуб)</p>
+        <p className="tagline">Бесплатный (по реалу) скачиватель, пользуйтесь на здоровье! &lt;3</p>
       </header>
 
       <main className="card">
@@ -344,14 +344,14 @@ export default function App() {
               onClick={() => setFormat("audio")}
               disabled={isLoading}
             >
-              🎵 Аудио (MP3)
+              Аудио (MP3)
             </button>
             <button
               className={`toggle-btn ${format === "video" ? "active" : ""}`}
               onClick={() => setFormat("video")}
               disabled={isLoading}
             >
-              🎬 Видео (MP4)
+              Видео (MP4)
             </button>
           </div>
         </div>
