@@ -296,7 +296,7 @@ export default function App() {
               ref={inputRef}
               className="input"
               type="url"
-              placeholder="Сюда хуй ссылку"
+              placeholder="Сюда суй ссылку"
               value={url}
               onChange={(e) => handleUrlChange(e.target.value)}
               disabled={status === "downloading"}
